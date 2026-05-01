@@ -1,65 +1,146 @@
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <title>My Site</title>
-    <style>
-      * { margin: 0; padding: 0; }
-      body {
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        transition: background-image 1s ease-in-out;
-        width: 100vw;
-        height: 100vh;
-      }
-    </style>
-  </head>
-  <body>
-    <script>
-      const images = [
-        'images/01.jpg',
-        'images/02.png',
-        'images/03.png',
-        'images/04.png',
-        'images/05.png',
-        'images/06.png',
-        'images/07.png',
-        'images/08.png',
-        'images/09.png',
-        'images/10.png',
-        'images/11.png',
-        'images/12.png',
-        'images/13.png',
-        'images/14.png',
-        'images/15.png',
-        'images/16.png',
-        'images/17.png',
-        'images/18.png',
-        'images/19.png',
-        'images/20.png',
-        'images/21.png',
-        'images/22.png',
-        'images/23.png',
-        'images/24.png',
-        'images/25.png',
-        'images/26.png',
-        'images/27.png',
-        'images/28.png',
-        'images/29.png',
-        'images/30.png',
-        'images/31.png',
-        'images/32.png',
-        'images/33.png',
-        'images/34.png',
-        'images/35.png',
-      ];
-      let i = 0;
-      function slide() {
-        document.body.style.backgroundImage = `url('${images[i]}')`;
-        i = (i + 1) % images.length;
-      }
-      slide();
-      setInterval(slide, 3000);
-    </script>
-  </body>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RiRiua Portal</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
+      background: #000 center/cover no-repeat fixed;
+      max-width: 900px;
+      margin: 3.0em auto;
+      padding: 0 16px;
+    }
+    .bg-fader {
+      position: fixed; inset: 0; z-index: -1;
+      background: center/cover no-repeat fixed;
+      opacity: 0; transition: opacity .6s ease;
+    }
+    h1 {
+      position: relative;
+      margin: 40px 0 30px;
+      font-size: clamp(2.2rem, 6vw, 3rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-align: center;
+      text-shadow: 0 6px 20px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5);
+      transform: translateY(-10px);
+    }
+    h1::before {
+      content: "";
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+      width: 80%; height: 120%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0));
+      z-index: -1;
+      border-radius: 20px;
+    }
+    h1 { margin-top: 12px; }
+    .card {
+      border: 1px solid #000000;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      background: rgba(5,0,0,0.315);
+      backdrop-filter: blur(2px);
+    }
+    a { display: inline-block; padding: 6px 0; color: #aef; }
+    code { background: #f6f8fa; padding: 2px 6px; border-radius: 6px; }
+    @media (prefers-color-scheme: dark) {
+      .card { border-color: #333; background: rgba(0,0,0,.35); }
+      code { background: rgba(255,255,255,.08); }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg" class="bg-fader" aria-hidden="true"></div>
+
+  <h1>RiRiua Portal</h1>
+
+  <div class="card">
+    <h2 style="color:#fff; font-size:2em;">About</h2>
+    <p style="color:#ddd;">ririua の個人サイトです。</p>
+  </div>
+
+  <script>
+  (() => {
+    const SWITCH_MS = 10_000;
+    const images = [
+      'images/01.jpg',
+      'images/02.png',
+      'images/03.png',
+      'images/04.png',
+      'images/05.png',
+      'images/06.png',
+      'images/07.png',
+      'images/08.png',
+      'images/09.png',
+      'images/10.png',
+      'images/11.png',
+      'images/12.png',
+      'images/13.png',
+      'images/14.png',
+      'images/15.png',
+      'images/16.png',
+      'images/17.png',
+      'images/18.png',
+      'images/19.png',
+      'images/20.png',
+      'images/21.png',
+      'images/22.png',
+      'images/23.png',
+      'images/24.png',
+      'images/25.png',
+      'images/26.png',
+      'images/27.png',
+      'images/28.png',
+      'images/29.png',
+      'images/30.png',
+      'images/31.png',
+      'images/32.png',
+      'images/33.png',
+      'images/34.png',
+      'images/35.png',
+    ];
+
+    let lastIdx = -1;
+    const bg = document.getElementById('bg');
+
+    function pickRandom() {
+      if (!images.length) return null;
+      let idx;
+      do { idx = Math.floor(Math.random() * images.length); } while (idx === lastIdx && images.length > 1);
+      lastIdx = idx;
+      return images[idx];
+    }
+
+    function setRandomBackground() {
+      const src = pickRandom();
+      if (!src) return;
+      const img = new Image();
+      img.onload = () => {
+        bg.style.backgroundImage = `url("${src}")`;
+        bg.style.opacity = 1;
+      };
+      img.onerror = () => {
+        images.splice(lastIdx, 1);
+        setTimeout(setRandomBackground, 500);
+      };
+      bg.style.opacity = 0;
+      img.src = src;
+    }
+
+    setRandomBackground();
+    setInterval(setRandomBackground, SWITCH_MS);
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) setRandomBackground();
+    });
+  })();
+  </script>
+</body>
 </html>
