@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>My Site</title>
+    <style>
+      * { margin: 0; padding: 0; }
+      body {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        transition: background-image 1s ease-in-out;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const images = [
+        'images/01.jpg',
+        'images/02.png',
+        'images/03.png',
+        'images/04.png',
+        'images/05.png',
+        'images/06.png',
+        'images/07.png',
+        'images/08.png',
+        'images/09.png',
+        'images/10.png',
+        'images/11.png',
+        'images/12.png',
+        'images/13.png',
+        'images/14.png',
+        'images/15.png',
+        'images/16.png',
+        'images/17.png',
+        'images/18.png',
+        'images/19.png',
+        'images/20.png',
+        'images/21.png',
+        'images/22.png',
+        'images/23.png',
+        'images/24.png',
+        'images/25.png',
+        'images/26.png',
+        'images/27.png',
+        'images/28.png',
+        'images/29.png',
+        'images/30.png',
+        'images/31.png',
+        'images/32.png',
+        'images/33.png',
+        'images/34.png',
+        'images/35.png',
+      ];
+      let i = 0;
+      function slide() {
+        document.body.style.backgroundImage = `url('${images[i]}')`;
+        i = (i + 1) % images.length;
+      }
+      slide();
+      setInterval(slide, 3000);
+    </script>
+  </body>
+</html>
