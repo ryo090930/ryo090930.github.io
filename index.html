@@ -5,115 +5,286 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>RiRiua Portal</title>
   <style>
-    :root { color-scheme: light dark; }
-    html, body { height: 100%; margin: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 背景レイヤー（クロスフェード用に2枚） */
+    .bg {
+      position: fixed; inset: 0; z-index: -1;
+      background: center/cover no-repeat;
+      transition: opacity 1.2s ease;
+    }
+    #bg1 { opacity: 1; }
+    #bg2 { opacity: 0; }
+
     body {
       font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
-      background: #000 center/cover no-repeat fixed;
-      max-width: 900px;
-      margin: 3.0em auto;
-      padding: 0 16px;
+      min-height: 100vh;
+      color: #fff;
     }
-    .bg-fader {
+
+    /* 全体のオーバーレイ */
+    .overlay {
       position: fixed; inset: 0; z-index: -1;
-      background: center/cover no-repeat fixed;
-      opacity: 0; transition: opacity .6s ease;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.3) 0%,
+        rgba(0,0,0,0.1) 40%,
+        rgba(0,0,0,0.5) 100%
+      );
     }
-    h1 {
-      position: relative;
-      margin: 40px 0 30px;
-      font-size: clamp(2.2rem, 6vw, 3rem);
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: #ffffff;
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    /* ヘッダー */
+    header {
       text-align: center;
-      text-shadow: 0 6px 20px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5);
-      transform: translateY(-10px);
+      margin-bottom: 40px;
     }
-    h1::before {
-      content: "";
-      position: absolute;
-      left: 50%; transform: translateX(-50%);
-      width: 80%; height: 120%;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0));
-      z-index: -1;
-      border-radius: 20px;
+
+    .clock {
+      font-size: clamp(3rem, 10vw, 5rem);
+      font-weight: 200;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+      font-variant-numeric: tabular-nums;
     }
-    h1 { margin-top: 12px; }
+
+    .date {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-top: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      margin-top: 16px;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    }
+
+    /* カード */
     .card {
-      border: 1px solid #000000;
-      border-radius: 12px;
-      padding: 16px;
-      margin: 12px 0;
-      background: rgba(5,0,0,0.315);
-      backdrop-filter: blur(2px);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin: 14px 0;
+      transition: background .2s, transform .2s;
     }
-    a { display: inline-block; padding: 6px 0; color: #aef; }
-    code { background: #f6f8fa; padding: 2px 6px; border-radius: 6px; }
-    @media (prefers-color-scheme: dark) {
-      .card { border-color: #333; background: rgba(0,0,0,.35); }
-      code { background: rgba(255,255,255,.08); }
+    .card:hover {
+      background: rgba(0,0,0,0.5);
+      transform: translateY(-2px);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 10px;
+    }
+
+    .card a {
+      display: inline-block;
+      color: #7dd3fc;
+      text-decoration: none;
+      padding: 4px 0;
+      font-size: 1rem;
+      transition: color .2s;
+    }
+    .card a:hover { color: #fff; }
+
+    code {
+      background: rgba(255,255,255,0.12);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      font-family: monospace;
+    }
+
+    .card p { margin-top: 6px; font-size: 0.95rem; opacity: 0.85; line-height: 1.6; }
+
+    /* 画像インジケーター */
+    .indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: background .4s, transform .4s;
+      cursor: pointer;
+    }
+    .dot.active {
+      background: #fff;
+      transform: scale(1.4);
     }
   </style>
 </head>
 <body>
-  <div id="bg" class="bg-fader" aria-hidden="true"></div>
+  <div id="bg1" class="bg"></div>
+  <div id="bg2" class="bg"></div>
+  <div class="overlay"></div>
 
-  <h1>RiRiua Portal</h1>
+  <div class="container">
+    <header>
+      <div class="clock" id="clock">00:00:00</div>
+      <div class="date" id="date"></div>
+      <h1>✦ RiRiua Portal ✦</h1>
+    </header>
 
-  <div class="card">
-    <h2 style="color:#fff; font-size:2em;">About</h2>
-    <p style="color:#ddd;">ririua の個人サイトです。</p>
+    <div class="card">
+      <h2>Netdata</h2>
+      <a href="/netdata/">Netdata（一時停止中）</a>
+    </div>
+
+    <div class="card">
+      <h2>Cockpit</h2>
+      <a href="https://arch-ririua-1.taile525a2.ts.net:9090/system" target="_blank" rel="noopener">Cockpit (ririua) // 停止中</a>
+      <p><a href="https://archlinux.taile525a2.ts.net:9090/system" target="_blank" rel="noopener">Cockpit (ririua-2)</a></p>
+    </div>
+
+    <div class="card">
+      <h2>AdGuard Home</h2>
+      <a href="http://192.168.3.7:3001/" target="_blank" rel="noopener">AdGuardHome</a>
+      <p>DNS: <code>192.168.3.7</code></p>
+    </div>
+
+    <div class="card">
+      <h2>IP アドレス</h2>
+      <p><strong>ririua</strong></p>
+      <p>SoftBank Air: <code>192.168.3.50</code> &nbsp;|&nbsp; Tailscale: <code>100.100.54.18</code> &nbsp;|&nbsp; 寮ネット: <code>192.168.100.4</code></p>
+      <p>Port: <code>445</code></p>
+      <p style="margin-top:10px"><strong>ririua2</strong></p>
+      <p>SoftBank Air: <code>192.168.3.7</code> &nbsp;|&nbsp; Tailscale: <code>100.94.130.56</code></p>
+    </div>
   </div>
+
+  <!-- 画像インジケーター -->
+  <div class="indicator" id="indicator"></div>
 
   <script>
   (() => {
     const SWITCH_MS = 10_000;
     const images = [
-HTMLEOF
-
-for f in images/*; do
-  echo "      '${f}'," >> index.html
-done
-
-cat >> index.html << 'HTMLEOF'
+      'images/01.jpg',
+      'images/02.png',
+      'images/03.png',
+      'images/04.png',
+      'images/05.png',
+      'images/06.png',
+      'images/07.png',
+      'images/08.png',
+      'images/09.png',
+      'images/10.png',
+      'images/11.png',
+      'images/12.png',
+      'images/13.png',
+      'images/14.png',
+      'images/15.png',
+      'images/16.png',
+      'images/17.png',
+      'images/18.png',
+      'images/19.png',
+      'images/20.png',
+      'images/21.png',
+      'images/22.png',
+      'images/23.png',
+      'images/24.png',
+      'images/25.png',
+      'images/26.png',
+      'images/27.png',
+      'images/28.png',
+      'images/29.png',
+      'images/30.png',
+      'images/31.png',
+      'images/32.png',
+      'images/33.png',
+      'images/34.png',
+      'images/35.png',
     ];
 
-    let lastIdx = -1;
-    const bg = document.getElementById('bg');
-
-    function pickRandom() {
-      if (!images.length) return null;
-      let idx;
-      do { idx = Math.floor(Math.random() * images.length); } while (idx === lastIdx && images.length > 1);
-      lastIdx = idx;
-      return images[idx];
+    // シャッフル
+    for (let i = images.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [images[i], images[j]] = [images[j], images[i]];
     }
 
-    function setRandomBackground() {
-      const src = pickRandom();
-      if (!src) return;
+    let current = 0;
+    let layer = 0; // 0 or 1 でレイヤー切替
+    const bg = [document.getElementById('bg1'), document.getElementById('bg2')];
+
+    // インジケーター（最大15個まで表示）
+    const indicator = document.getElementById('indicator');
+    const dotCount = Math.min(images.length, 15);
+    const dots = [];
+    for (let i = 0; i < dotCount; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot';
+      d.onclick = () => showImage(i);
+      indicator.appendChild(d);
+      dots.push(d);
+    }
+
+    function updateDots(idx) {
+      const dotIdx = idx % dotCount;
+      dots.forEach((d, i) => d.classList.toggle('active', i === dotIdx));
+    }
+
+    function showImage(idx) {
+      current = ((idx % images.length) + images.length) % images.length;
+      const next = 1 - layer;
       const img = new Image();
       img.onload = () => {
-        bg.style.backgroundImage = `url("${src}")`;
-        bg.style.opacity = 1;
+        bg[next].style.backgroundImage = `url("${images[current]}")`;
+        bg[next].style.opacity = 1;
+        bg[layer].style.opacity = 0;
+        layer = next;
+        updateDots(current);
       };
       img.onerror = () => {
-        images.splice(lastIdx, 1);
-        setTimeout(setRandomBackground, 500);
+        images.splice(current, 1);
+        if (images.length) showImage(current);
       };
-      bg.style.opacity = 0;
-      img.src = src;
+      img.src = images[current];
     }
 
-    setRandomBackground();
-    setInterval(setRandomBackground, SWITCH_MS);
+    // 時計
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+      const days = ['日','月','火','水','木','金','土'];
+      document.getElementById('date').textContent =
+        `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${days[now.getDay()]}）`;
+    }
 
+    showImage(0);
+    setInterval(() => showImage(current + 1), SWITCH_MS);
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) setRandomBackground();
+      if (!document.hidden) showImage(current + 1);
     });
+
+    updateClock();
+    setInterval(updateClock, 1000);
   })();
   </script>
 </body>
 </html>
-HTMLEOF
