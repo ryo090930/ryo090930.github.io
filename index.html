@@ -2,281 +2,418 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>RiRiua Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="木更津高専 電子制御工学科2年・RiRiuaのプロフィールページ">
+  <meta name="theme-color" content="#101522">
+  <title>RiRiua | Profile</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    /* 背景レイヤー（クロスフェード用に2枚） */
-    .bg {
-      position: fixed; inset: 0; z-index: -1;
-      background: center/cover no-repeat;
-      transition: opacity 1.2s ease;
+    :root {
+      --page-bg: #101522;
+      --surface: rgb(12 17 28 / 72%);
+      --surface-border: rgb(255 255 255 / 16%);
+      --text: #f8fafc;
+      --muted: #d4dbe7;
+      --accent: #a9d6ff;
+      --accent-strong: #ffffff;
+      --shadow: 0 20px 50px rgb(0 0 0 / 30%);
+      --radius: 18px;
     }
-    #bg1 { opacity: 1; }
-    #bg2 { opacity: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { background: var(--page-bg); }
 
     body {
-      font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
-      min-height: 100vh;
-      color: #f5f5f5;
-      line-height: 1.5;
+      min-width: 320px;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--text);
+      background: var(--page-bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif;
+      line-height: 1.65;
     }
 
-    /* 全体のオーバーレイ */
+    /* 高解像度画像も比率を保ったまま画面いっぱいに表示する背景レイヤー */
+    .background {
+      position: fixed;
+      z-index: -2;
+      inset: 0;
+      overflow: hidden;
+      background: var(--page-bg);
+    }
+
+    .background-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      transition: opacity 900ms ease;
+      will-change: opacity;
+    }
+
+    .background-image.is-visible { opacity: 1; }
+
     .overlay {
-      position: fixed; inset: 0; z-index: -1;
-      background: rgba(0,0,0,0.4);
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgb(8 12 20 / 50%), rgb(8 12 20 / 78%)),
+        rgb(8 12 20 / 18%);
     }
 
     .container {
-      max-width: 760px;
+      width: min(100% - 32px, 920px);
       margin: 0 auto;
-      padding: 32px 16px 56px;
+      padding: clamp(32px, 7vw, 72px) 0 40px;
     }
 
-    /* ヘッダー */
-    header {
-      text-align: center;
-      margin-bottom: 28px;
+    .hero { margin-bottom: 28px; }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: clamp(2.4rem, 9vw, 4.8rem);
+      letter-spacing: 0.035em;
+      line-height: 1.1;
+    }
+
+    .lead {
+      max-width: 44rem;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.15rem);
     }
 
     .clock {
-      font-size: clamp(2.4rem, 8vw, 3.8rem);
-      font-weight: 300;
-      letter-spacing: 0.04em;
+      display: inline-flex;
+      gap: 0.6rem;
+      align-items: baseline;
+      color: var(--muted);
       font-variant-numeric: tabular-nums;
     }
 
-    .date {
-      font-size: 0.95rem;
-      opacity: 0.9;
-      margin-top: 4px;
-      letter-spacing: 0.08em;
+    .clock time { color: var(--text); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
-    h1 {
-      font-size: clamp(1.4rem, 4vw, 2rem);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      margin-top: 14px;
-    }
-
-    /* カード */
     .card {
-      background: rgba(0,0,0,0.55);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin: 10px 0;
-      transition: border-color .2s;
+      padding: clamp(20px, 4vw, 28px);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
     }
-    .card:hover { border-color: rgba(255,255,255,0.3); }
+
+    .card--wide { grid-column: 1 / -1; }
 
     .card h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      opacity: 0.9;
-      margin-bottom: 8px;
+      margin-bottom: 14px;
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
     }
 
-    .card a {
-      display: inline-block;
-      color: #c8e6ff;
-      text-decoration: none;
-      padding: 2px 0;
-      font-size: 0.98rem;
-      transition: color .2s;
-    }
-    .card a:hover { color: #fff; text-decoration: underline; }
+    .card p:last-child { margin-bottom: 0; }
 
-    code {
-      background: rgba(255,255,255,0.16);
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-size: 0.9em;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    .profile-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
     }
 
-    .card p { margin-top: 4px; font-size: 0.93rem; opacity: 0.9; line-height: 1.55; }
+    .profile-list > div {
+      display: grid;
+      grid-template-columns: minmax(5.5rem, auto) 1fr;
+      gap: 14px;
+    }
 
-    /* 画像インジケーター */
-    .indicator {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+    dt { color: var(--accent); }
+    dd { margin: 0; }
+
+    .links {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+    }
+
+    a:hover, a:focus-visible { color: var(--accent-strong); }
+
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .image-control {
       display: flex;
-      gap: 6px;
-      z-index: 10;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-    .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.4);
-      transition: background .4s, transform .4s;
+
+    button {
+      padding: 9px 14px;
+      color: var(--text);
+      border: 1px solid var(--surface-border);
+      border-radius: 999px;
+      background: rgb(255 255 255 / 11%);
+      font: inherit;
       cursor: pointer;
     }
-    .dot.active {
-      background: #fff;
-      transform: scale(1.4);
+
+    button:hover { background: rgb(255 255 255 / 20%); }
+
+    .image-status {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    dialog {
+      width: min(96vw, 1500px);
+      max-width: none;
+      max-height: 94dvh;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius);
+      background: #090d16;
+      box-shadow: 0 24px 80px rgb(0 0 0 / 65%);
+    }
+
+    dialog::backdrop { background: rgb(0 0 0 / 74%); }
+
+    .dialog-close {
+      position: absolute;
+      z-index: 1;
+      top: 12px;
+      right: 12px;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      background: rgb(0 0 0 / 50%);
+    }
+
+    .full-image {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: 94dvh;
+      margin: 0 auto;
+      object-fit: contain;
+    }
+
+    @media (max-width: 640px) {
+      .cards { grid-template-columns: 1fr; }
+      .card--wide { grid-column: auto; }
+      .profile-list > div { grid-template-columns: 1fr; gap: 2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="bg1" class="bg"></div>
-  <div id="bg2" class="bg"></div>
-  <div class="overlay"></div>
+  <div class="background" aria-hidden="true">
+    <img id="backgroundA" class="background-image is-visible" alt="">
+    <img id="backgroundB" class="background-image" alt="">
+  </div>
+  <div class="overlay" aria-hidden="true"></div>
 
-  <div class="container">
-    <header>
-      <div class="clock" id="clock">00:00:00</div>
-      <div class="date" id="date"></div>
-      <h1>RiRiua Page</h1>
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">GitHub Pages</p>
+      <h1>RiRiua</h1>
+      <p class="lead">木更津高専 電子制御工学科の2年生、RiRiuaの自己紹介ページです。GitHub Pagesで公開しています。</p>
+      <p class="clock"><time id="clock" datetime="">00:00:00</time><span id="date"></span></p>
     </header>
 
-    <div class="card">
-      <h2>Cockpit</h2>
-      <p><a href="https://archlinux.taile525a2.ts.net:9090/system" target="_blank" rel="noopener">Cockpit (ririua-2)</a></p>
+    <div class="cards">
+      <section class="card" aria-labelledby="profile-heading">
+        <h2 id="profile-heading">プロフィール</h2>
+        <dl class="profile-list">
+          <div>
+            <dt>名前</dt>
+            <dd>RiRiua</dd>
+          </div>
+          <div>
+            <dt>所属</dt>
+            <dd>木更津高専 電子制御工学科 2年</dd>
+          </div>
+          <div>
+            <dt>このサイト</dt>
+            <dd>GitHub Pagesで運用中</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="card" aria-labelledby="social-heading">
+        <h2 id="social-heading">SNS</h2>
+        <ul class="links">
+          <li><a href="https://x.com/ririuua" target="_blank" rel="noopener noreferrer">X（メイン） @ririuua</a></li>
+          <li><a href="https://x.com/doraemonn145" target="_blank" rel="noopener noreferrer">X（サブ） @doraemonn145</a></li>
+        </ul>
+      </section>
+
+      <section class="card card--wide" aria-labelledby="github-heading">
+        <h2 id="github-heading">GitHub</h2>
+        <p><a href="https://github.com/ryo090930" target="_blank" rel="noopener noreferrer">GitHubプロフィールを見る</a></p>
+        <p>このホームページはGitHub Pagesで動作する、外部サービスに依存しない静的なHTMLです。</p>
+      </section>
+
+      <section class="card card--wide" aria-labelledby="image-heading">
+        <h2 id="image-heading">背景画像</h2>
+        <p>高解像度の画像も、画面サイズに合わせて比率を保ったまま表示します。</p>
+        <div class="image-control">
+          <button id="nextImage" type="button">次の背景画像</button>
+          <button id="openImage" type="button">大きく表示</button>
+          <span id="imageStatus" class="image-status" aria-live="polite"></span>
+        </div>
+      </section>
     </div>
 
-    <div class="card">
-      <h2>AdGuard Home(一時停止中)</h2>
-      <a href="http://192.168.3.7:3001/" target="_blank" rel="noopener">AdGuardHome</a>
-      <p>DNS: <code>192.168.3.7</code></p>
-    </div>
+    <footer>© <span id="year"></span> RiRiua</footer>
+  </main>
 
-    <div class="card">
-      <h2>IP Address</h2>
-      <p><strong>ririua</strong></p>
-      <p>SoftBank Air: <code>192.168.3.50</code> &nbsp;|&nbsp; Tailscale: <code>100.100.54.18</code> &nbsp;|&nbsp; 寮ネット: <code>192.168.100.4</code></p>
-      <p>Port: <code>445</code></p>
-      <p style="margin-top:10px"><strong>ririua2</strong></p>
-      <p><code>100.94.130/56</code></p>
-    </div>
-
-    <div class="card">
-      <h2>コードの在処</h2>
-      <p><strong>ririua2</strong></p>
-      <p><code>/home/ririua2/ririua.github.io/index.html</code></p>
-      <p style="margin-top:10px"><strong>更新手順</strong></p>
-      <p><code>git add index.html</code></p>
-      <p><code>git commit -m "コメント"</code></p>
-      <p><code>git push origin main</code></p>
-    </div>
-  </div>
-
-  <!-- 画像インジケーター -->
-  <div class="indicator" id="indicator"></div>
+  <dialog id="imageDialog" aria-label="背景画像を大きく表示">
+    <button class="dialog-close" type="button" aria-label="画像表示を閉じる" id="closeImage">×</button>
+    <img id="fullImage" class="full-image" alt="背景画像を拡大表示">
+  </dialog>
 
   <script>
     (() => {
-	const SWITCH_MS = 10_000;
-    const images = [
-      'images/01.jpg',
-      'images/02.png',
-      'images/03.png',
-      'images/04.png',
-      'images/05.png',
-      'images/06.png',
-      'images/07.png',
-      'images/08.png',
-      'images/09.png',
-      'images/10.png',
-      'images/11.png',
-      'images/12.png',
-      'images/13.png',
-      'images/14.png',
-      'images/15.png',
-      'images/16.png',
-      'images/17.png',
-      'images/18.png',
-      'images/19.png',
-      'images/20.png',
-      'images/21.png',
-      'images/22.png',
-      'images/23.png',
-      'images/24.png',
-      'images/25.png',
-      'images/26.png',
-      'images/27.png',
-      'images/28.png',
-      'images/29.png',
-      'images/30.png',
-      'images/31.png',
-      'images/32.png',
-      'images/33.png',
-      'images/34.png',
-      'images/35.png',
-    ];
+      // 画像を追加・削除するときは、この一覧だけを更新してください。
+      const CONFIG = Object.freeze({
+        switchMs: 10_000,
+        imagePaths: [
+          'images/01.jpg', 'images/02.png', 'images/03.png', 'images/04.png', 'images/05.png',
+          'images/06.png', 'images/07.png', 'images/08.png', 'images/09.png', 'images/10.png',
+          'images/11.png', 'images/12.png', 'images/13.png', 'images/14.png', 'images/15.png',
+          'images/16.png', 'images/17.png', 'images/18.png', 'images/19.png', 'images/20.png',
+          'images/21.png', 'images/22.png', 'images/23.png', 'images/24.png', 'images/25.png',
+          'images/26.png', 'images/27.png', 'images/28.png', 'images/29.png', 'images/30.png',
+          'images/31.png', 'images/32.png', 'images/33.png', 'images/34.png', 'images/35.png'
+        ]
+      });
 
-    // シャッフル
-    for (let i = images.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [images[i], images[j]] = [images[j], images[i]];
-    }
+      const images = [...CONFIG.imagePaths].sort(() => Math.random() - 0.5);
+      const layers = [document.getElementById('backgroundA'), document.getElementById('backgroundB')];
+      const nextButton = document.getElementById('nextImage');
+      const openButton = document.getElementById('openImage');
+      const status = document.getElementById('imageStatus');
+      const dialog = document.getElementById('imageDialog');
+      const fullImage = document.getElementById('fullImage');
+      let currentIndex = 0;
+      let visibleLayer = 0;
+      let loadRequest = 0;
 
-    let current = 0;
-    let layer = 0; // 0 or 1 でレイヤー切替
-    const bg = [document.getElementById('bg1'), document.getElementById('bg2')];
+      const modulo = (value, length) => ((value % length) + length) % length;
 
-    // インジケーター（最大15個まで表示）
-    const indicator = document.getElementById('indicator');
-    const dotCount = Math.min(images.length, 15);
-    const dots = [];
-    for (let i = 0; i < dotCount; i++) {
-      const d = document.createElement('div');
-      d.className = 'dot';
-      d.onclick = () => showImage(i);
-      indicator.appendChild(d);
-      dots.push(d);
-    }
+      function updateImageStatus() {
+        status.textContent = images.length ? `${currentIndex + 1} / ${images.length}` : '画像がありません';
+      }
 
-    function updateDots(idx) {
-      const dotIdx = idx % dotCount;
-      dots.forEach((d, i) => d.classList.toggle('active', i === dotIdx));
-    }
+      function updateDialogImage() {
+        if (dialog.open && images.length) fullImage.src = images[currentIndex];
+      }
 
-    function showImage(idx) {
-      current = ((idx % images.length) + images.length) % images.length;
-      const next = 1 - layer;
-      const img = new Image();
-      img.onload = () => {
-        bg[next].style.backgroundImage = `url("${images[current]}")`;
-        bg[next].style.opacity = 1;
-        bg[layer].style.opacity = 0;
-        layer = next;
-        updateDots(current);
-      };
-      img.onerror = () => {
-        images.splice(current, 1);
-        if (images.length) showImage(current);
-      };
-      img.src = images[current];
-    }
+      function showImage(index) {
+        if (!images.length) {
+          updateImageStatus();
+          nextButton.disabled = true;
+          openButton.disabled = true;
+          return;
+        }
 
-    // 時計
-    function updateClock() {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2,'0');
-      const mm = String(now.getMinutes()).padStart(2,'0');
-      const ss = String(now.getSeconds()).padStart(2,'0');
-      document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
-      const days = ['日','月','火','水','木','金','土'];
-      document.getElementById('date').textContent =
-        `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${days[now.getDay()]}）`;
-    }
+        currentIndex = modulo(index, images.length);
+        const source = images[currentIndex];
+        const request = ++loadRequest;
+        const preloaded = new Image();
+        preloaded.decoding = 'async';
 
-    showImage(0);
-    setInterval(() => showImage(current + 1), SWITCH_MS);
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) showImage(current + 1);
-    });
+        preloaded.onload = () => {
+          if (request !== loadRequest) return;
+          const nextLayer = 1 - visibleLayer;
+          layers[nextLayer].src = source;
+          layers[nextLayer].classList.add('is-visible');
+          layers[visibleLayer].classList.remove('is-visible');
+          visibleLayer = nextLayer;
+          updateImageStatus();
+          updateDialogImage();
+        };
 
-    updateClock();
-    setInterval(updateClock, 1000);
-  })();
+        preloaded.onerror = () => {
+          if (request !== loadRequest) return;
+          images.splice(currentIndex, 1);
+          showImage(currentIndex);
+        };
+
+        preloaded.src = source;
+      }
+
+      nextButton.addEventListener('click', () => showImage(currentIndex + 1));
+      openButton.addEventListener('click', () => {
+        if (!images.length || typeof dialog.showModal !== 'function') return;
+        fullImage.src = images[currentIndex];
+        dialog.showModal();
+      });
+      document.getElementById('closeImage').addEventListener('click', () => dialog.close());
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) showImage(currentIndex + 1);
+      });
+
+      function updateClock() {
+        const now = new Date();
+        const clock = document.getElementById('clock');
+        const date = document.getElementById('date');
+        const days = ['日', '月', '火', '水', '木', '金', '土'];
+        clock.textContent = now.toLocaleTimeString('ja-JP', { hour12: false });
+        clock.dateTime = now.toISOString();
+        date.textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日（${days[now.getDay()]}）`;
+      }
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+      showImage(0);
+      updateClock();
+      window.setInterval(() => showImage(currentIndex + 1), CONFIG.switchMs);
+      window.setInterval(updateClock, 1000);
+    })();
   </script>
 </body>
 </html>
